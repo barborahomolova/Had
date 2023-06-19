@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snake</title>
+    <style>
+      body {
+        background-color: #ffbf00;
+        text-align: center;
+      }
+      canvas {
+        border: 10px solid #f7344a;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas width="600" height="600"></canvas>
+    <script>
+      //listeners -  ovládání hada
+      document.addEventListener("keydown", keyPush); //posloucám, zda nastala událost keydown, pokud ano, spustí se mnou vytvořená funce keyPush()
+
+      //canvas
+      const canvas = document.querySelector("canvas");
+      const ctx = canvas.getContext("2d");
+
+      //player
+      const snakeSize = 50;
+
+      let snakeSpeed = 30;
+      let snakePosX = 0; //pocatecni pozice hada na ose x
+      let snakePosY = canvas.height / 2 - snakeSize / 2; //pocatecni pozice hada na Y - aby to bylo uprostred
+
+      let velocityX = 1;
+      let velocityY = 0;
+
+      let tileCountX = canvas.width / snakeSize;
+      let tileCountY = canvas.height /snakeSize;
+
+      //loop
+      function gameLoop() {
+        drawStuff();
+        //moveStuff();
+        setTimeout(gameLoop, 1000 / 15); //15xza sekundu. Místo requestAnimationFrame dam setTimeout, protoze tomu muzu rict kolik fps (frames per second ), tedy kdy ma spustit funkci - po kolika ms (aby se had posouval po mřížce)
+      }
+      gameLoop();
+
+      function moveStuff() {
+        snakePosX += snakeSpeed * velocityX; //posouvaní hada,pozice na ose x se posune o dany pocet pixelu uvedenych v promenne snakeSpeed,  je to stejne jako snakePosX = snakePosX + 1;
+        snakePosY += snakeSpeed * velocityY;
+
+        if (snakePosX > canvas.width) {
+          //zde nastavuji aby se had vratil po dosaženi praveho okraje zase na zacatek
+          snakePosX = 0;
+        } else if (snakePosX < -snakeSize) {
+          snakePosX = canvas.width;
+        } else if (snakePosY > canvas.height) {
+          snakePosY = 0;
+        } else if (snakePosY < -snakeSize) {
+          snakePosY = canvas.height;
+        }
+      }
+      // DRAW EVERYTHING
+      function drawStuff() {
+        //background
+        rectangle("#ffbf00", 0, 0, canvas.width, canvas.height); //vykreslí ctverec bile pozadi canvasu
+
+        //grid
+        drawGrid();
+
+        //snake
+        rectangle("black", snakePosX, snakePosY, snakeSize, snakeSize); //ctverec had
+      }
+
+      // DRAW RECTANGLE
+      function rectangle(color, x, y, width, height) {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, width, height);
+      }
+
+      //KEYBOARD
+      function keyPush(event) {
+        switch (event.key) {
+          case "ArrowLeft":
+            if (velocityX !== 1) {
+              velocityX = -1;
+              velocityY = 0;
+            }
+            break;
+          case "ArrowUp":
+            if (velocityY !== 1) {
+              velocityX = 0;
+              velocityY = -1;
+            }
+
+            break;
+          case "ArrowRight":
+            if (velocityX !== -1) {
+              velocityX = 1;
+              velocityY = 0;
+            }
+            break;
+          case "ArrowDown":
+            if (velocityY !== -1) {
+              velocityX = 0;
+              velocityY = 1;
+            }
+            break;
+        }
+      }
+
+      //grid
+      function drawGrid() {
+        //naskladam vedle sebe "kachličky" - grid, o belikosti stnakesize
+        for (let i = 0; i < tileCountX ; i++) {
+          for (let j = 0; j < tileCountY; j++) {
+            rectangle(
+              "#fff",
+              snakeSize * i,
+              snakeSize * j,
+              snakeSize - 1,
+              snakeSize - 1
+            ); //snakeSize-1 zn. jeden pixel tam nebude, bude prosvitat pozadi - grid
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
