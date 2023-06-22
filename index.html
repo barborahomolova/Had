@@ -9,48 +9,74 @@
   </head>
   <body>
     <canvas width="600" height="600"></canvas>
+    <h1>0</h1>
+
     <script>
       //listeners -  ovládání hada
       document.addEventListener("keydown", keyPush); //posloucám, zda nastala událost keydown, pokud ano, spustí se mnou vytvořená funce keyPush()
 
       //canvas
       const canvas = document.querySelector("canvas");
+      const title = document.querySelector("h1");
       const ctx = canvas.getContext("2d");
 
-      //player
-      const snakeSize = 50;
+      //game
 
-      let snakeSpeed = 30;
+      const fps = 10;
+      const snakeSize = 50;
+      const tileCountX = canvas.width / snakeSize;
+      const tileCountY = canvas.height / snakeSize;
+      let score = 0;
+
+      //player
+
+      let snakeSpeed = snakeSize;
       let snakePosX = 0; //pocatecni pozice hada na ose x
-      let snakePosY = canvas.height / 2 - snakeSize / 2; //pocatecni pozice hada na Y - aby to bylo uprostred
+      let snakePosY = canvas.height / 2; //pocatecni pozice uprostřed Y
 
       let velocityX = 1;
       let velocityY = 0;
+      let tail = [];
 
-      let tileCountX = canvas.width / snakeSize;
-      let tileCountY = canvas.height / snakeSize;
+      //food
+      let foodPosX = 0;
+      let foodPosY = 0;
 
       //loop
       function gameLoop() {
         drawStuff();
         //moveStuff();
-        setTimeout(gameLoop, 1000 / 15); //15xza sekundu. Místo requestAnimationFrame dam setTimeout, protoze tomu muzu rict kolik fps (frames per second ), tedy kdy ma spustit funkci - po kolika ms (aby se had posouval po mřížce)
+        setTimeout(gameLoop, 1000 / fps); //15xza sekundu. Místo requestAnimationFrame dam setTimeout, protoze tomu muzu rict kolik fps (frames per second ), tedy kdy ma spustit funkci - po kolika ms (aby se had posouval po mřížce)
       }
+      resetFood(); //pred spustenim hry se objevi jidlo na random pozici
       gameLoop();
 
       function moveStuff() {
         snakePosX += snakeSpeed * velocityX; //posouvaní hada,pozice na ose x se posune o dany pocet pixelu uvedenych v promenne snakeSpeed,  je to stejne jako snakePosX = snakePosX + 1;
         snakePosY += snakeSpeed * velocityY;
 
-        if (snakePosX > canvas.width) {
-          //zde nastavuji aby se had vratil po dosaženi praveho okraje zase na zacatek
+        //wall collision
+        if (snakePosX > canvas.width - snakeSize) {
+          // had se vrati po dosaženi praveho okraje zase na zacatek
           snakePosX = 0;
-        } else if (snakePosX < -snakeSize) {
+        } else if (snakePosX < 0) {
           snakePosX = canvas.width;
-        } else if (snakePosY > canvas.height) {
+        } else if (snakePosY > canvas.height - snakeSize) {
           snakePosY = 0;
-        } else if (snakePosY < -snakeSize) {
+        } else if (snakePosY < 0) {
           snakePosY = canvas.height;
+        }
+
+        // //tail
+        tail.push({ x: snakePosX, y: snakePosY });
+
+        // forget earliest parts of snake
+        tail = tail.slice(-1 * 5);
+
+        //food collision
+        if (snakePosX === foodPosX && snakePosY === foodPosY) {
+          title.textContent = ++score; //score se zvysi o 1 a pak se ulozi do textu title
+          resetFood();
         }
       }
       // DRAW EVERYTHING
@@ -60,6 +86,14 @@
 
         //grid
         drawGrid();
+
+        //food
+        rectangle("blue", foodPosX, foodPosY, snakeSize, snakeSize);
+
+        // //tail
+        tail.forEach((snakePart) =>
+          rectangle("#000", snakePart.x, snakePart.y, snakeSize, snakeSize)
+        );
 
         //snake
         rectangle("black", snakePosX, snakePosY, snakeSize, snakeSize); //ctverec had
@@ -71,6 +105,11 @@
         ctx.fillRect(x, y, width, height);
       }
 
+      //randomize food position
+      function resetFood() {
+        foodPosX = Math.floor(Math.random() * tileCountX) * snakeSize;
+        foodPosY = Math.floor(Math.random() * tileCountY) * snakeSize;
+      }
       //KEYBOARD
       function keyPush(event) {
         switch (event.key) {
@@ -104,7 +143,7 @@
 
       //grid
       function drawGrid() {
-        //naskladam vedle sebe "kachličky" - grid, o belikosti stnakesize
+        //naskladam vedle sebe "kachličky" - grid, o velikosti stnakesize
         for (let i = 0; i < tileCountX; i++) {
           for (let j = 0; j < tileCountY; j++) {
             rectangle(
