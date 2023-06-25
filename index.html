@@ -21,22 +21,25 @@
       const ctx = canvas.getContext("2d");
 
       //game
+      let gameIsRunning = true;
 
       const fps = 10;
-      const snakeSize = 50;
-      const tileCountX = canvas.width / snakeSize;
-      const tileCountY = canvas.height / snakeSize;
+      const tileSize = 50;
+      const tileCountX = canvas.width / tileSize;
+      const tileCountY = canvas.height / tileSize;
       let score = 0;
 
       //player
 
-      let snakeSpeed = snakeSize;
+      let snakeSpeed = tileSize;
       let snakePosX = 0; //pocatecni pozice hada na ose x
       let snakePosY = canvas.height / 2; //pocatecni pozice uprostřed Y
 
       let velocityX = 1;
       let velocityY = 0;
+
       let tail = [];
+      let snakeLength = 4;
 
       //food
       let foodPosX = 0;
@@ -44,9 +47,11 @@
 
       //loop
       function gameLoop() {
-        drawStuff();
-        //moveStuff();
-        setTimeout(gameLoop, 1000 / fps); //15xza sekundu. Místo requestAnimationFrame dam setTimeout, protoze tomu muzu rict kolik fps (frames per second ), tedy kdy ma spustit funkci - po kolika ms (aby se had posouval po mřížce)
+        if (gameIsRunning) {
+          drawStuff();
+          moveStuff();
+          setTimeout(gameLoop, 1000 / fps); //15xza sekundu. Místo requestAnimationFrame dam setTimeout, protoze tomu muzu rict kolik fps (frames per second ), tedy kdy ma spustit funkci - po kolika ms (aby se had posouval po mřížce)
+        }
       }
       resetFood(); //pred spustenim hry se objevi jidlo na random pozici
       gameLoop();
@@ -56,26 +61,34 @@
         snakePosY += snakeSpeed * velocityY;
 
         //wall collision
-        if (snakePosX > canvas.width - snakeSize) {
+        if (snakePosX > canvas.width - tileSize) {
           // had se vrati po dosaženi praveho okraje zase na zacatek
           snakePosX = 0;
         } else if (snakePosX < 0) {
           snakePosX = canvas.width;
-        } else if (snakePosY > canvas.height - snakeSize) {
+        } else if (snakePosY > canvas.height - tileSize) {
           snakePosY = 0;
         } else if (snakePosY < 0) {
           snakePosY = canvas.height;
         }
 
+        //GAME OVER (crush into itself)
+        tail.forEach((snakePart) => {
+          if (snakePosX === snakePart.x && snakePosY === snakePart.y) {
+            gameOver();
+          }
+        });
+
         // //tail
         tail.push({ x: snakePosX, y: snakePosY });
 
         // forget earliest parts of snake
-        tail = tail.slice(-1 * 5);
+        tail = tail.slice(-1 * snakeLength);
 
         //food collision
         if (snakePosX === foodPosX && snakePosY === foodPosY) {
           title.textContent = ++score; //score se zvysi o 1 a pak se ulozi do textu title
+          snakeLength++;
           resetFood();
         }
       }
@@ -88,15 +101,15 @@
         drawGrid();
 
         //food
-        rectangle("blue", foodPosX, foodPosY, snakeSize, snakeSize);
+        rectangle("blue", foodPosX, foodPosY, tileSize, tileSize);
 
         // //tail
         tail.forEach((snakePart) =>
-          rectangle("#000", snakePart.x, snakePart.y, snakeSize, snakeSize)
+          rectangle("gray", snakePart.x, snakePart.y, tileSize, tileSize)
         );
 
         //snake
-        rectangle("black", snakePosX, snakePosY, snakeSize, snakeSize); //ctverec had
+        rectangle("black", snakePosX, snakePosY, tileSize, tileSize); //ctverec had
       }
 
       // DRAW RECTANGLE
@@ -107,9 +120,37 @@
 
       //randomize food position
       function resetFood() {
-        foodPosX = Math.floor(Math.random() * tileCountX) * snakeSize;
-        foodPosY = Math.floor(Math.random() * tileCountY) * snakeSize;
+        //game over if there is nowhere to go
+        if (snakeLength === tileCountX * tileCountY) {
+          gameOver();
+        }
+
+        foodPosX = Math.floor(Math.random() * tileCountX) * tileSize;
+        foodPosY = Math.floor(Math.random() * tileCountY) * tileSize;
+
+        //dont spawn food on snakes head
+        if (foodPosX === snakePosX && foodPosY === snakePosY) {
+          resetFood();
+        }
+
+        //dont spawn food on any snakes part
+        if (
+          tail.some(
+            (snakePart) => SnakePart.x === foodPosX && snakePart.y === foodPosY
+          )
+        ) {
+          //pokud existuje v mem poli objektů nejaka cast hada na stejne miste jako food... .some() probehne pole objektu
+          resetFood();
+        }
       }
+
+      //game over
+      //keyboard restarts game
+      function gameOver() {
+        title.innerHTML = `<strong>${score} <br> GAME OVER! </strong>`;
+        gameIsRunning = false; //kdyz do sebe narazi, hra se zastavi
+      }
+
       //KEYBOARD
       function keyPush(event) {
         switch (event.key) {
@@ -138,6 +179,10 @@
               velocityY = 1;
             }
             break;
+          default:
+            //restart game
+            if (!gameIsRunning) location.reload(); //kdyz hra nebezi, jakoukoli klavesou ji restartuji
+            break;
         }
       }
 
@@ -148,11 +193,11 @@
           for (let j = 0; j < tileCountY; j++) {
             rectangle(
               "#fff",
-              snakeSize * i,
-              snakeSize * j,
-              snakeSize - 1,
-              snakeSize - 1
-            ); //snakeSize-1 zn. jeden pixel tam nebude, bude prosvitat pozadi - grid
+              tileSize * i,
+              tileSize * j,
+              tileSize - 1,
+              tileSize - 1
+            ); //tileSize-1 zn. jeden pixel tam nebude, bude prosvitat pozadi - grid
           }
         }
       }
