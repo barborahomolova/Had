@@ -1,16 +1,24 @@
 body {
-  background-color: #ffbf00;
+  background-color: #bcbcb7;
   text-align: center;
+  font-family: "Avenir Next", Verdana;
 }
+
+#welcome {
+  font-size: 1.5em;
+  padding: 25px;
+ 
+}
+
 canvas {
-  border: 10px solid #f7344a;
+  border: 10px solid #05a99b;
 }
 h1 {
-  font-family: "Avenir Next", Verdana;
+  
   font-weight: bold;
-  font-size: 4em;
+  font-size: 3em;
   margin-top: 0;
-  letter-spacing: -10px;
+  /* letter-spacing: -10px; */
 }
 
 h1 strong {
