@@ -83,7 +83,7 @@ function moveStuff() {
 // DRAW EVERYTHING
 function drawStuff() {
   //background
-  rectangle("#ffbf00", 0, 0, canvas.width, canvas.height); //vykreslí ctverec bile pozadi canvasu
+  rectangle("#ffbf00", 0, 0, canvas.width, canvas.height); //vykreslí bile pozadi canvasu
 
   //grid
   drawGrid();
@@ -96,8 +96,8 @@ function drawStuff() {
     rectangle("gray", snakePart.x, snakePart.y, tileSize, tileSize)
   );
 
-  //snake
-  rectangle("black", snakePosX, snakePosY, tileSize, tileSize); //ctverec had
+  //snakes head
+  rectangle("black", snakePosX, snakePosY, tileSize, tileSize); 
 }
 
 // DRAW RECTANGLE
@@ -135,7 +135,7 @@ function resetFood() {
 //game over
 //keyboard restarts game
 function gameOver() {
-  title.innerHTML = `<strong>${score} <br> GAME OVER! </strong>`;
+  title.innerHTML = `<strong> Score: ${score} <br> GAME OVER! </strong> <br> Press any key to play again.`;
   gameIsRunning = false; //kdyz do sebe narazi, hra se zastavi
 }
 

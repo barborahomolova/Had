@@ -6,19 +6,16 @@ body {
 
 #welcome {
   font-size: 1.5em;
-  padding: 25px;
- 
+  padding: 10px;
 }
 
 canvas {
   border: 10px solid #05a99b;
 }
 h1 {
-  
   font-weight: bold;
-  font-size: 3em;
+  font-size: em;
   margin-top: 0;
-  /* letter-spacing: -10px; */
 }
 
 h1 strong {
