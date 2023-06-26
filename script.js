@@ -1,5 +1,5 @@
-//listeners -  ovládání hada
-document.addEventListener("keydown", keyPush); //posloucám, zda nastala událost keydown, pokud ano, spustí se mnou vytvořená funce keyPush()
+//listeners
+document.addEventListener("keydown", keyPush); //if event keydown happens, the function keyPush runs
 
 //canvas
 const canvas = document.querySelector("canvas");
@@ -16,11 +16,11 @@ const tileCountY = canvas.height / tileSize;
 let score = 0;
 
 //player
-
 let snakeSpeed = tileSize;
-let snakePosX = 0; //pocatecni pozice hada na ose x
-let snakePosY = canvas.height / 2; //pocatecni pozice uprostřed Y
+let snakePosX = 0; //starting positon on X axis
+let snakePosY = canvas.height / 2; //starting positon in the middle of Y axis 
 
+//velocity - speed in directions of X or Y axis
 let velocityX = 1;
 let velocityY = 0;
 
@@ -37,20 +37,20 @@ function gameLoop() {
     drawStuff();
     moveStuff();
     youWon();
-    setTimeout(gameLoop, 1000 / fps); //15xza sekundu. Místo requestAnimationFrame dam setTimeout, protoze tomu muzu rict kolik fps (frames per second ), tedy kdy ma spustit funkci - po kolika ms (aby se had posouval po mřížce)
+    setTimeout(gameLoop, 1000 / fps); //fps variable above to set the speed
   }
 }
-resetFood(); //pred spustenim hry se objevi jidlo na random pozici
+
+resetFood(); //before start of the game the food shows at random position
 gameLoop();
 
 
 function moveStuff() {
-  snakePosX += snakeSpeed * velocityX; //posouvaní hada,pozice na ose x se posune o dany pocet pixelu uvedenych v promenne snakeSpeed,  je to stejne jako snakePosX = snakePosX + 1;
+  snakePosX += snakeSpeed * velocityX; 
   snakePosY += snakeSpeed * velocityY;
 
-  //wall collision
+  //wall collision - if snake hits the wall ...
   if (snakePosX > canvas.width - tileSize) {
-    // had se vrati po dosaženi praveho okraje zase na zacatek
     snakePosX = 0;
   } else if (snakePosX < 0) {
     snakePosX = canvas.width;
@@ -67,23 +67,23 @@ function moveStuff() {
     }
   });
 
-  // //tail
+  //tail
   tail.push({ x: snakePosX, y: snakePosY });
 
   // forget earliest parts of snake
   tail = tail.slice(-1 * snakeLength);
 
-  //food collision
+  //food collision - score increases by 1 and then it saves to the title
   if (snakePosX === foodPosX && snakePosY === foodPosY) {
-    title.textContent = ++score; //score se zvysi o 1 a pak se ulozi do textu title
+    title.textContent = ++score; 
     snakeLength++;
     resetFood();
   }
 }
 // DRAW EVERYTHING
 function drawStuff() {
-  //background
-  rectangle("#ffbf00", 0, 0, canvas.width, canvas.height); //vykreslí bile pozadi canvasu
+  //background - canvas background created by rectangle function
+  rectangle("#ffbf00", 0, 0, canvas.width, canvas.height);
 
   //grid
   drawGrid();
@@ -91,7 +91,7 @@ function drawStuff() {
   //food
   rectangle("#05a99b", foodPosX, foodPosY, tileSize, tileSize);
 
-  // //tail
+  //tail
   tail.forEach((snakePart) =>
     rectangle("gray", snakePart.x, snakePart.y, tileSize, tileSize)
   );
@@ -108,7 +108,7 @@ function rectangle(color, x, y, width, height) {
 
 //randomize food position
 function resetFood() {
-  //game over if there is nowhere to go
+  //game is over if there is nowhere to go - snake is too long
   if (snakeLength === tileCountX * tileCountY) {
     gameOver();
   }
@@ -123,20 +123,21 @@ function resetFood() {
 
   //dont spawn food on any snakes part
   if (
+    //.some() runs through array of objects to see if any part of snake i on the food position
     tail.some(
       (snakePart) => snakePart.x === foodPosX && snakePart.y === foodPosY
     )
   ) {
-    //pokud existuje v mem poli objektů nejaka cast hada na stejne miste jako food... .some() probehne pole objektu
+    
     resetFood();
   }
 }
 
-//game over
+//game over - snake runs into itself
 //keyboard restarts game
 function gameOver() {
   title.innerHTML = `<strong> Score: ${score} <br> GAME OVER! </strong> <br> Press any key to play again.`;
-  gameIsRunning = false; //kdyz do sebe narazi, hra se zastavi
+  gameIsRunning = false; 
 }
 
 //you win
@@ -144,7 +145,7 @@ function youWon() {
 if(score == 15){
     title.innerHTML = `<strong>YOU WON! You fed the snake with ${score} meals! </strong> <br> Press any key to play again. `;
     gameIsRunning = false;
-    startConfetti();
+  
 }
 }
 
@@ -177,18 +178,18 @@ function keyPush(event) {
       }
       break;
     default:
-      //restart game
-      if (!gameIsRunning) location.reload(); //kdyz hra nebezi, jakoukoli klavesou ji restartuji
+      //restart game - if game not running - restart by pressing any key 
+      if (!gameIsRunning) location.reload(); 
       break;
   }
 }
 
 //grid
 function drawGrid() {
-  //naskladam vedle sebe "kachličky" - grid, o velikosti stnakesize
+  //stacking the tiles creates grid with the size of tileSize
   for (let i = 0; i < tileCountX; i++) {
     for (let j = 0; j < tileCountY; j++) {
-      rectangle("#fff", tileSize * i, tileSize * j, tileSize - 1, tileSize - 1); //tileSize-1 zn. jeden pixel tam nebude, bude prosvitat pozadi - grid
+      rectangle("#fff", tileSize * i, tileSize * j, tileSize - 1, tileSize - 1); //tileSize-1 means that one pixel is missing ---> visible grid
     }
   }
 }
