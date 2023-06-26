@@ -141,7 +141,7 @@ function gameOver() {
 
 //you win
 function youWon() {
-if(score == 3){
+if(score == 15){
     title.innerHTML = `<strong>YOU WON! You fed the snake with ${score} meals! </strong> <br> Press any key to play again. `;
     gameIsRunning = false;
     startConfetti();
